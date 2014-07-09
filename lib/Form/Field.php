@@ -39,7 +39,7 @@ abstract class Form_Field extends AbstractView {
     public $default_value=null;
 
     // Field customization
-    private $separator='';
+    private $separator=':';
     public $show_input_only;
     public $form=null;
 
@@ -62,6 +62,7 @@ abstract class Form_Field extends AbstractView {
         }
         $this->setForm($obj);
          */
+
     }
     function setForm($form){
         $form->addHook('loadPOST',$this);
@@ -96,6 +97,9 @@ abstract class Form_Field extends AbstractView {
     }
     function setCaption($_caption){
         $this->caption=$this->api->_($_caption);
+        if ($this->show_input_only || !$this->template->hasTag('field_caption')) {
+            $this->setAttr('placeholder',$this->caption);
+        }
         return $this;
     }
     function displayFieldError($msg=null){
@@ -137,10 +141,12 @@ abstract class Form_Field extends AbstractView {
             if(isset($options['position']))$position=$options['position'];
         }
         if($position=='after'){
-            return $this->afterField()->add('Button',$options)->setLabel($label);
+            $button = $this->afterField()->add('Button',$options)->set($label);
         }else{
-            return $this->beforeField()->add('Button',$options)->setLabel($label);
+            $button = $this->beforeField()->add('Button',$options)->set($label);
         }
+        $this->js('change', $button->js()->data('val', $this->js()->val()) );
+        return $button;
     }
 
     /** Layout changes in response to adding more elements before / after */
@@ -158,7 +164,7 @@ abstract class Form_Field extends AbstractView {
                 ->setAttr('href',$link);
         }
 
-        $this->template->trySetHTML('before_input','<span class="atk-input-icon">');
+        $this->template->trySetHTML('before_input','<span class="atk-input-icon atk-jackscrew">');
         $this->template->trySetHTML('after_input','</span>');
 
         return $this->_icon;
@@ -226,7 +232,7 @@ abstract class Form_Field extends AbstractView {
         $this->normalize();
     }
     function normalize(){
-        /* Normalization will make sure that entry conforms to the field type. 
+        /* Normalization will make sure that entry conforms to the field type.
            Possible trimming, rounding or length enforcements may happen. */
         $this->hook('normalize');
     }
@@ -405,12 +411,15 @@ abstract class Form_Field extends AbstractView {
         return "<$tag ".join(' ',$tmp).$postfix.">".($value?$value."</$tag>":"");
     }
 
-    function setSource(){
-        return call_user_func_array(array($this->form,'setSource'),func_get_args());
+    function destroy(){
+        parent::destroy();
+        if ($this->form != $this->owner) {
+            $this->form->_removeElement($this->short_name);
+        }
     }
-    function addField(){
-        return call_user_func_array(array($this->form,'addField'),func_get_args());
-        //throw new ObsoleteException('$form->addField() now returns Field object and not Form. Do not chain it.');
+
+    function defaultTemplate(){
+        return array('form_field');
     }
 }
 

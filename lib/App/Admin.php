@@ -42,7 +42,7 @@ class App_Admin extends App_Frontend {
 
     private function initSandbox() {
         if ($this->pathfinder->sandbox) {
-            $sandbox = $this->app->add('sandbox\\Initiator');
+            $sandbox = $this->app->add('sandbox/Initiator');
 
             if ($sandbox->getGuardError()) {
                 $this->sandbox->getPolice()->addErrorView($this->layout);
@@ -74,9 +74,9 @@ class App_Admin extends App_Frontend {
     function initTopMenu() {
         $m=$this->layout->add('Menu_Horizontal',null,'Top_Menu');
         //$m->addClass('atk-size-kilo');
-        $m->addItem('Admin');
-        $m->addItem('AgileToolkit');
-        $m->addItem('Documentation');
+        $m->addItem('Admin','/');
+        $m->addItem('AgileToolkit','/sandbox/dashboard');
+        $m->addItem('Documentation','http://book.agiletoolkit.org/');
     }
 
 

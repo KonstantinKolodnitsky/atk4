@@ -8,6 +8,7 @@ abstract class Menu_Advanced extends View {
     /**
      * Adds a title to your menu.
      */
+
     function addTitle($title, $class='Menu_Advanced_Title') {
 
         $i = $this->add($class,null,null,
@@ -87,10 +88,33 @@ abstract class Menu_Advanced extends View {
 
     function addSeparator($class='Menu_Advanced_Separator') {
         $i = $this->add($class,null,null,
-            $this->defaultTemplate()+array('Separator')
+            $x=array_merge($this->defaultTemplate(),array('Separator'))
         );
-
         return $i;
+    }
+
+    function setModel($m){
+        $m=parent::setModel($m);
+        foreach($m as $model) {
+
+            // check subitems
+            if(@$model->hierarchy_controller && $model[$model->hierarchy_controller->child_ref.'_cnt']){
+                $m=$this->addMenu($model['name']);
+                foreach($model->ref($model->hierarchy_controller->child_ref) as $child){
+                    $m->addItem($child['name'],$child['page']);
+                }
+
+            }else{
+
+
+                $this->addItem($model['name'],$model['page']);
+
+            }
+
+
+
+        }
+
     }
 
 

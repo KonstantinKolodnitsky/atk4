@@ -4,7 +4,7 @@
  * Do not directly inherit from this class, instead use one of
  * AbstractModel, AbstractController or AbstractView
  *
- * @link http://agiletoolkit.org/learn/intro
+ * @link http://agiletoolkit.org/doc/core-features/objects
 *//*
 ==ATK4===================================================
    This file is part of Agile Toolkit 4
@@ -349,6 +349,9 @@ abstract class AbstractObject
                 ->addMoreInfo('class', get_class($element));
         }
 
+        // Great hook to affect children recursively
+        $this->hook('afterAdd',array($element));
+
         return $element;
     }
 
@@ -655,6 +658,8 @@ abstract class AbstractObject
             $this->debug = $msg;
             return $this;
         }
+
+        if(is_object($msg))throw $this->exception('Do not debug objects');
 
         // The rest of this method is obsolete
         if ((isset($this->debug) && $this->debug)
